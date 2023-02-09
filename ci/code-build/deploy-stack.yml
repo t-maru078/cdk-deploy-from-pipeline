@@ -1,0 +1,28 @@
+version: 0.2
+env:
+  shell: bash
+phases:
+  install:
+    runtime-versions:
+      nodejs: 16
+    commands:
+      - echo Install started on `date`
+      - npm install
+    finally:
+      - echo Install finished on `date`
+  pre_build:
+    commands:
+      - echo Pre Build started on `date`
+    finally:
+      - echo Pre Build finished on `date`
+  build:
+    commands:
+      - echo Build started on `date`
+      - npm run cdk deploy CognitoStack -- --require-approval never --ci true
+    finally:
+      - echo Build finished on `date`
+  post_build:
+    commands:
+      - echo Post Build started on `date`
+    finally:
+      - echo Post Build finished on `date`
