@@ -9,28 +9,24 @@ import { ManagedPolicy } from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 
 // Deploy に cdk コマンド を使った場合の例
-export class CdkDeploymentPipelineStack extends cdk.Stack {
+export class CdkCliDeploymentPipelineStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const githubConnection = new codestar_connections.CfnConnection(this, 'githubConnection', {
-      connectionName: 'cdkDeployTestGithubConnection',
+    const githubConnection = new codestar_connections.CfnConnection(this, 'GithubConnection', {
+      connectionName: 'CdkCliPipelineConnection',
       providerType: 'GitHub',
     });
 
-    const githubOwnerName = new cdk.CfnParameter(this, 'githubOwnerName', {
-      type: 'String',
-    });
-    const githubRepoName = new cdk.CfnParameter(this, 'githubRepoName', {
-      type: 'String',
-    });
+    const githubOwnerName = this.node.tryGetContext('githubOwnerName');
+    const githubRepoName = this.node.tryGetContext('githubRepoName');
 
-    const adminRole = new iam.Role(this, 'adminRole', {
+    const adminRole = new iam.Role(this, 'AdminRole', {
       assumedBy: new iam.ServicePrincipal('codebuild.amazonaws.com'),
     });
     adminRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess'));
 
-    const cdkDeployProject = new codebuild.PipelineProject(this, 'cdkDeployProject', {
+    const cdkDeployProject = new codebuild.PipelineProject(this, 'CdkDeployProject', {
       buildSpec: codebuild.BuildSpec.fromSourceFilename('ci/code-build/deploy-stack.yml'),
       role: adminRole,
       environment: {
@@ -41,11 +37,11 @@ export class CdkDeploymentPipelineStack extends cdk.Stack {
 
     const sourceOutput = new codepipeline.Artifact('SourceOutput');
 
-    const artifactBucket = new s3.Bucket(this, 'artifactsBucket', {
+    const artifactBucket = new s3.Bucket(this, 'ArtifactsBucket', {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
-    new codepipeline.Pipeline(this, 'pipeline', {
+    new codepipeline.Pipeline(this, 'Pipeline', {
       artifactBucket,
       stages: [
         {
@@ -53,8 +49,8 @@ export class CdkDeploymentPipelineStack extends cdk.Stack {
           actions: [
             new codepipeline_actions.CodeStarConnectionsSourceAction({
               actionName: 'FetchSourceCode',
-              owner: githubOwnerName.valueAsString,
-              repo: githubRepoName.valueAsString,
+              owner: githubOwnerName,
+              repo: githubRepoName,
               branch: 'main',
               connectionArn: githubConnection.ref,
               output: sourceOutput,
@@ -65,7 +61,7 @@ export class CdkDeploymentPipelineStack extends cdk.Stack {
           stageName: 'Deploy',
           actions: [
             new codepipeline_actions.CodeBuildAction({
-              actionName: 'DeployAwsResources',
+              actionName: 'DeployResources',
               project: cdkDeployProject,
               input: sourceOutput,
             }),
