@@ -30,7 +30,7 @@ export class CdkPipelinesDeploymentStack extends cdk.Stack {
     });
 
     const pipeline = new pipelines.CodePipeline(this, 'CdkPipeline', {
-      selfMutation: false,
+      selfMutation: true,
       synthCodeBuildDefaults: {
         partialBuildSpec: codebuild.BuildSpec.fromObject({
           phases: {
