@@ -19,7 +19,7 @@ phases:
   build:
     commands:
       - echo Build started on `date`
-      - npm run cdk synth CognitoStack -- -o dist
+      - npm run cdk synth CognitoStack
     finally:
       - echo Build finished on `date`
   post_build:
@@ -29,5 +29,5 @@ phases:
       - echo Post Build finished on `date`
 
 artifacts:
-  'base-directory': 'dist'
-  files: ['*']
+  base-directory: cdk.out
+  files: ['**/*']
