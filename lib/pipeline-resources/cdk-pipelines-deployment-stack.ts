@@ -5,7 +5,7 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as pipelines from 'aws-cdk-lib/pipelines';
 import { aws_codestarconnections as codestar_connections } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { FrontEndResources } from '../resources/frontend-resources';
+import { FrontendResources } from '../resources/frontend-resources';
 
 // CDK pipelines module を使って CI/CD Pipeline を構成する例
 export class CdkPipelinesDeploymentStack extends cdk.Stack {
@@ -49,7 +49,7 @@ export class CdkPipelinesDeploymentStack extends cdk.Stack {
       codePipeline,
     });
 
-    const frontendResources = new FrontEndResources(this, 'FrontedResources');
+    const frontendResources = new FrontendResources(this, 'FrontendResources');
 
     pipeline.addStage(frontendResources, {
       stackSteps: [

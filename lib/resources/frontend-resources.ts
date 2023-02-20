@@ -28,7 +28,7 @@ class DbStack extends cdk.Stack {
   }
 }
 
-export class FrontEndResources extends cdk.Stage {
+export class FrontendResources extends cdk.Stage {
   public readonly dbStack: DbStack;
   public readonly cognitoStack: CognitoStack;
 
